@@ -2,66 +2,85 @@ namespace UserStorageConsole;
 
 public class Handler
 {
-    private Dictionary<int,User> storage;
-    public Handler(Dictionary<int, User> s)
+
+    private const string NAME = "name";
+    private const string PASSWORD = "password";
+    
+    private Storage storage;
+    public Handler(Storage storage)
     {
-        this.storage = s;
+        this.storage = storage;
     }
 
-    public void Start()
+    public async void Start()
     {
-
+        Console.WriteLine("App has started!!");
         while (true)
         {
-            string str = Console.ReadLine();
+            string? str = Console.ReadLine();
 
-            if (str == "create user")
+            switch (str)
             {
-                Console.Write("Enter a name: ");
-                string name = Console.ReadLine();
-                Console.Write("Enter a password: ");
-                string password = Console.ReadLine();
-
-                int id = this.CreateUser(name, password);
-                Console.WriteLine("The user has been created, id: {0}\n", id);
+                case null:
+                    Console.WriteLine("Incorrect input");
+                    continue;
                 
-                Console.Write("Do you want to see users? ");
-                string response = Console.ReadLine();
-                if (response == "yes" || response == "да")
-                {
+                case "create user":
+                    
+                    string name = this.GetConsoleValue(NAME);
+                    string password = this.GetConsoleValue(PASSWORD);
+                    
+                    int id = this.CreateUser(name, password);
+                    
+                    Console.WriteLine("The user has been created, id: {0}\n", id);
+                    Console.Write("If you want to see users send 'get users'\n");
+
+                    break;
+                
+                case "get users":
                     this.GetUsers();
-                }
+                    break;
+                
+                case "quit":
+                    Console.WriteLine("bye!!");
+                    return;
+                
+                default:
+                    Console.WriteLine("Unknown command");
+                    break;
+            }
+        }
+    }
+
+    private int CreateUser(string name, string password)
+    {
+        return this.storage.CreateUser(name, password);
+    }
+    private void GetUsers()
+    {
+        this.storage
+            .GetAll().Values
+            .ToList()
+            .ForEach((user) => user.PrintValues());
+       
+    }
+    private string GetConsoleValue(string v)
+    {
+        while (true)
+        {
+            Console.Write("Enter a {0}: ", v);
+            string? vv = Console.ReadLine();
+            if (vv == null || vv.Trim().Length == 0)
+            {
+                Console.WriteLine("Incorrect format of {0}", v);
+                continue;
             }
 
-            if (str == "get users")
-            {
-                int count = this.GetUsers();
-                if (count == 0)
-                {
-                    Console.WriteLine("Users have not been created yet:(\n");
-                }
-            }
-            
+            return vv;
         }
     }
     
-    public int CreateUser(string name, string password)
-    {
-        // create user:
-        User user = new User(name, password);
-
-        // add a user to storage:
-        int id = DateTime.Now.GetHashCode();
-        this.storage.Add(id, user);
-        
-        return id;
-    }
-    public int GetUsers()
-    {
-        foreach (KeyValuePair<int, User> el2 in this.storage)
-        {
-            Console.WriteLine("id: {0}, name: {1}, password: {2}", el2.Key, el2.Value.name, el2.Value.password);
-        }
-        return this.storage.Count;
-    }
+   
+    
+    
 }
