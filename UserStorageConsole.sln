@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1.csproj", "{969FFD02-139B-45EA-BBC7-CB5BC75E7041}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserStorageConsole", "UserStorageConsole.csproj", "{969FFD02-139B-45EA-BBC7-CB5BC75E7041}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
