@@ -12,7 +12,7 @@ public class Handler
         this.storage = storage;
     }
 
-    public async void Start()
+    public void Start()
     {
         Console.WriteLine("App has started!!");
         while (true)
@@ -30,7 +30,7 @@ public class Handler
                     string name = this.GetConsoleValue(NAME);
                     string password = this.GetConsoleValue(PASSWORD);
                     
-                    int id = this.CreateUser(name, password);
+                    var id = this.CreateUser(name, password);
                     
                     Console.WriteLine("The user has been created, id: {0}\n", id);
                     Console.Write("If you want to see users send 'get users'\n");
@@ -56,14 +56,12 @@ public class Handler
     {
         return this.storage.CreateUser(name, password);
     }
+    
     private void GetUsers()
     {
-        this.storage
-            .GetAll().Values
-            .ToList()
-            .ForEach((user) => user.PrintValues());
-       
+        this.storage.GetAll();
     }
+    
     private string GetConsoleValue(string v)
     {
         while (true)
