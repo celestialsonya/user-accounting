@@ -5,7 +5,7 @@ namespace UserStorageConsole;
 public class Storage
 {
     
-    private const string FILE = @"C:\Users\Сонечка\RiderProjects\Storage.txt";
+    private const string FILE = @"C:\Users\Сонечка\RiderProjects\user-accounting\Storage.txt";
     
     private async void writeText(string json)
     {
@@ -15,20 +15,24 @@ public class Storage
         }
     }
     
-    public void GetAll()
+    public List<User>? GetAll()
     {
-        string[] json = File.ReadAllText(FILE).Trim().Split("\n");
-        
-        foreach (var u in json)
-        {
-            User? user = JsonSerializer.Deserialize<User>(u);
-            Console.WriteLine($"id: {user?.id}, name: {user?.name}");
-        }
-
+        string json = File.ReadAllText(FILE);
         if (json.Length == 0)
         {
-            Console.WriteLine("Users have not been created yet:(\n");
+            return null;
         }
+
+        string[] jsonArr = json.Trim().Split("\n");
+        
+        List<User> users = new List<User>();
+        foreach (var u in jsonArr)
+        {
+            User? user = JsonSerializer.Deserialize<User>(u);
+            users.Add(user!);
+        }
+
+        return users;
     }
 
     public int CreateUser(string name, string password)

@@ -38,7 +38,20 @@ public class Handler
                     break;
                 
                 case "get users":
-                    this.GetUsers();
+                    
+                    List<User>? users = this.GetUsers();
+                    
+                    if (users == null)
+                    {
+                        Console.WriteLine("Users have not been created yet:(\n");
+                        break;
+                    }
+
+                    foreach (User user in users)
+                    {
+                        Console.WriteLine($"id: {user.id}, name: {user.name}");
+                    }
+                    Console.Write("\n");
                     break;
                 
                 case "quit":
@@ -57,9 +70,9 @@ public class Handler
         return this.storage.CreateUser(name, password);
     }
     
-    private void GetUsers()
+    private List<User>? GetUsers()
     {
-        this.storage.GetAll();
+        return this.storage.GetAll();
     }
     
     private string GetConsoleValue(string v)
@@ -77,8 +90,5 @@ public class Handler
             return vv;
         }
     }
-    
-   
-    
     
 }
