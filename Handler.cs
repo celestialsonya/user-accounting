@@ -58,6 +58,30 @@ public class Handler
                     Console.WriteLine("bye!!");
                     return;
                 
+                case "delete user":
+                    
+                    List<User>? usersAll = this.GetUsers();
+                    if (usersAll == null)
+                    {
+                        Console.WriteLine("Users have not been created yet:(\n");
+                        break;
+                    }
+                    
+                    string deletedName = this.GetConsoleValue(NAME);
+                    string deletedPassword = this.GetConsoleValue(PASSWORD);
+                    
+                    var deletedUser = this.DeleteUser(deletedName, deletedPassword, usersAll);
+
+                    if (deletedUser == null)
+                    {
+                        break;
+                    }
+                    
+                    Console.WriteLine("This user has been deleted, id: {0}, name: {1}",
+                        deletedUser?.id, deletedUser?.name);
+                    
+                    break;
+                
                 default:
                     Console.WriteLine("Unknown command");
                     break;
@@ -89,6 +113,27 @@ public class Handler
 
             return vv;
         }
+    }
+
+    private User? DeleteUser(string name, string password, List<User> users)
+    {
+        User? user = this.storage.CheckName(users, name);
+        if (user != null)
+        {
+            bool ok = this.storage.CheckPassword(user, password);
+            if (ok)
+            {
+                return this.storage.DeleteUser(name, password, users);
+            }
+
+            if (!ok)
+            {
+                Console.WriteLine("Incorrect password");
+                return null;
+            }
+        }
+        Console.WriteLine("Icorrect name");
+        return null;
     }
     
 }
