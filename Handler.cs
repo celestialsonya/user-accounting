@@ -28,8 +28,18 @@ public class Handler
                 case "create user":
                     
                     string name = this.GetConsoleValue(NAME);
-                    string password = this.GetConsoleValue(PASSWORD);
                     
+                    // checking for the identity of the name:
+                    List<User>? usersList = this.GetUsers();
+                    
+                    User? userFinded = this.storage.CheckName(usersList!, name);
+                    if (userFinded != null)
+                    {
+                        Console.WriteLine("User with this name already exist");
+                        break;
+                    }
+                    
+                    string password = this.GetConsoleValue(PASSWORD);
                     var id = this.CreateUser(name, password);
                     
                     Console.WriteLine("The user has been created, id: {0}\n", id);
