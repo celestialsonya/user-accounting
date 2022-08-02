@@ -5,7 +5,7 @@ namespace UserStorageConsole;
 public class Storage
 {
     
-    private const string FILE = @"C:\Users\Сонечка\RiderProjects\user-accounting\Storage.txt";
+    private const string FILE = @".\Storage.txt";
     
     private async void writeText(string json)
     {

@@ -31,14 +31,16 @@ public class Handler
                     
                     // checking for the identity of the name:
                     List<User>? usersList = this.GetUsers();
-                    
-                    User? userFinded = this.storage.CheckName(usersList!, name);
-                    if (userFinded != null)
+                    if (usersList != null)
                     {
-                        Console.WriteLine("User with this name already exist");
-                        break;
+                        User? userFinded = this.storage.CheckName(usersList!, name);
+                        if (userFinded != null)
+                        {
+                            Console.WriteLine("User with this name already exist");
+                            break;
+                        }
                     }
-                    
+
                     string password = this.GetConsoleValue(PASSWORD);
                     var id = this.CreateUser(name, password);
                     
