@@ -1,4 +1,5 @@
 using System.Text.Json;
+using UserStorageConsole.errors;
 
 namespace UserStorageConsole;
 
@@ -100,6 +101,21 @@ public class Storage
         }
 
         return false;
+    }
+
+    public void CheckIdentityName(string name)
+    {
+        User? found = this.GetByName(name);
+                        
+        if (found != null)
+        {
+            throw new UserAlreadyExistException();
+        }
+    }
+
+    public int generateId()
+    {
+        return this.GetAll().Count + 1;
     }
     
 }

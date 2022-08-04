@@ -34,12 +34,7 @@ public class Handler
                         string name = this.GetConsoleValue(NAME);
 
                         // checking for the identity of the name:
-                        User? found = this.storage.GetByName(name);
-                        
-                        if (found != null)
-                        {
-                            throw new UserAlreadyExistException();
-                        }
+                        this.storage.CheckIdentityName(name);
 
                         string password = this.GetConsoleValue(PASSWORD);
                         
