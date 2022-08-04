@@ -15,12 +15,12 @@ public class Storage
         }
     }
     
-    public List<User>? GetAll()
+    public List<User> GetAll()
     {
         string json = File.ReadAllText(FILE);
         if (json.Length == 0)
         {
-            return null;
+            return new List<User>();
         }
 
         string[] jsonArr = json.Trim().Split("\n");
@@ -29,7 +29,10 @@ public class Storage
         foreach (var u in jsonArr)
         {
             User? user = JsonSerializer.Deserialize<User>(u);
-            users.Add(user!);
+            if (user != null)
+            {
+                users.Add(user);
+            }
         }
 
         return users;
@@ -47,14 +50,17 @@ public class Storage
         return user.id;
     }
 
-    public User DeleteUser(string name, string password, List<User> users)
+    public void DeleteUser(int id)
     {
-        User? deletedUser = users.FindAll(user => (user.name == name) && (user.password == password))[0];
         FileInfo fi = new FileInfo(FILE);
-
-        users = users.FindAll(user => user != deletedUser);
-
-        using (StreamWriter writter = new StreamWriter(fi.Open(FileMode.Truncate)))
+        List<User> users = this.GetAll();
+        
+        // filtered by id:
+        users = users.FindAll(user => user.id != id);
+        
+        // open file by file info with mode 'truncate':
+        var file = fi.Open(FileMode.Truncate);
+        using (StreamWriter writter = new StreamWriter(file))
         {
             writter.Dispose();
         }
@@ -64,13 +70,11 @@ public class Storage
             string json = JsonSerializer.Serialize(user);
             this.writeText(json);
         }
-        
-        return deletedUser;
     }
 
-    public User? CheckName(List<User> users, string name)
+    public User? isExist(string name)
     {
-        User? user = users.Find(user => user.name == name);
+        User? user = this.GetByName(name);
         
         if (user != null)
         {
@@ -79,6 +83,15 @@ public class Storage
 
         return null;
     }
+
+    public User? GetByName(string name)
+    {
+        List<User> users = this.GetAll();
+        User? user = users.Find(user => user.name == name);
+
+        return user;
+    }
+    
     public bool CheckPassword(User user, string password)
     {
         if (user.password == password)
@@ -88,4 +101,5 @@ public class Storage
 
         return false;
     }
+    
 }

@@ -1,3 +1,5 @@
+using UserStorageConsole.errors;
+
 namespace UserStorageConsole;
 
 public class Handler
@@ -14,7 +16,7 @@ public class Handler
 
     public void Start()
     {
-        Console.WriteLine("App has started!!");
+        Console.WriteLine("App has started!!\n");
         while (true)
         {
             string? str = Console.ReadLine();
@@ -22,80 +24,81 @@ public class Handler
             switch (str)
             {
                 case null:
-                    Console.WriteLine("Incorrect input");
+                    Console.WriteLine("Incorrect input\n");
                     continue;
                 
                 case "create user":
-                    
-                    string name = this.GetConsoleValue(NAME);
-                    
-                    // checking for the identity of the name:
-                    List<User>? usersList = this.GetUsers();
-                    if (usersList != null)
-                    {
-                        User? userFinded = this.storage.CheckName(usersList!, name);
-                        if (userFinded != null)
-                        {
-                            Console.WriteLine("User with this name already exist");
-                            break;
-                        }
-                    }
 
-                    string password = this.GetConsoleValue(PASSWORD);
-                    var id = this.CreateUser(name, password);
-                    
-                    Console.WriteLine("The user has been created, id: {0}\n", id);
-                    Console.Write("If you want to see users send 'get users'\n");
+                    try
+                    {
+                        string name = this.GetConsoleValue(NAME);
+
+                        // checking for the identity of the name:
+                        User? found = this.storage.GetByName(name);
+                        
+                        if (found != null)
+                        {
+                            throw new UserAlreadyExistException();
+                        }
+
+                        string password = this.GetConsoleValue(PASSWORD);
+                        
+                        int id = this.CreateUser(name, password);
+
+                        Console.WriteLine("The user has been created, id: {0}\n", id);
+                        Console.Write("If you want to see users send 'get users'\n");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
 
                     break;
                 
                 case "get users":
                     
-                    List<User>? users = this.GetUsers();
-                    
-                    if (users == null)
+                    try
                     {
-                        Console.WriteLine("Users have not been created yet:(\n");
-                        break;
-                    }
+                        List<User> users = this.GetUsers();
 
-                    foreach (User user in users)
-                    {
-                        Console.WriteLine($"id: {user.id}, name: {user.name}");
+                        foreach (User user in users)
+                        {
+                            Console.WriteLine($"id: {user.id}, name: {user.name}");
+                        }
+                        Console.Write("\n");
                     }
-                    Console.Write("\n");
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    
                     break;
                 
                 case "quit":
-                    Console.WriteLine("bye!!");
+                    Console.WriteLine("bye!!\n");
                     return;
                 
                 case "delete user":
-                    
-                    List<User>? usersAll = this.GetUsers();
-                    if (usersAll == null)
-                    {
-                        Console.WriteLine("Users have not been created yet:(\n");
-                        break;
-                    }
-                    
-                    string deletedName = this.GetConsoleValue(NAME);
-                    string deletedPassword = this.GetConsoleValue(PASSWORD);
-                    
-                    var deletedUser = this.DeleteUser(deletedName, deletedPassword, usersAll);
 
-                    if (deletedUser == null)
+                    try
                     {
-                        break;
-                    }
+                        string delName = this.GetConsoleValue(NAME);
+                        string delPassword = this.GetConsoleValue(PASSWORD);
                     
-                    Console.WriteLine("This user has been deleted, id: {0}, name: {1}",
-                        deletedUser?.id, deletedUser?.name);
+                        User deletedUser = this.DeleteUser(delName, delPassword);
+
+                        Console.WriteLine("This user has been deleted, id: {0}, name: {1}\n",
+                            deletedUser.id, deletedUser.name);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                     
                     break;
-                
+
                 default:
-                    Console.WriteLine("Unknown command");
+                    Console.WriteLine("Unknown command\n");
                     break;
             }
         }
@@ -106,9 +109,15 @@ public class Handler
         return this.storage.CreateUser(name, password);
     }
     
-    private List<User>? GetUsers()
+    private List<User> GetUsers()
     {
-        return this.storage.GetAll();
+        List<User> users = this.storage.GetAll();
+        if (users.Count == 0)
+        {
+            throw new NoUsersException();
+        }
+
+        return users;
     }
     
     private string GetConsoleValue(string v)
@@ -127,25 +136,25 @@ public class Handler
         }
     }
 
-    private User? DeleteUser(string name, string password, List<User> users)
+    private User DeleteUser(string name, string password)
     {
-        User? user = this.storage.CheckName(users, name);
-        if (user != null)
+        User? candidate = this.storage.isExist(name);
+        if (candidate != null)
         {
-            bool ok = this.storage.CheckPassword(user, password);
+            bool ok = this.storage.CheckPassword(candidate, password);
             if (ok)
             {
-                return this.storage.DeleteUser(name, password, users);
+                this.storage.DeleteUser(candidate.id);
+                return candidate;
             }
 
             if (!ok)
             {
-                Console.WriteLine("Incorrect password");
-                return null;
+                throw new InvalidPasswordException();
             }
         }
-        Console.WriteLine("Icorrect name");
-        return null;
+
+        throw new UserDoesNotExistException();
     }
     
 }
